@@ -20,7 +20,7 @@ g_type2onehotclass = {'Car': 0, 'Pedestrian': 1, 'Cyclist': 2}
 g_type_mean_size = {'Car': np.array([3.88311640418,1.62856739989,1.52563191462]),
                     'Van': np.array([5.06763659,1.9007158,2.20532825]),
                     'Truck': np.array([10.13586957,2.58549199,3.2520595]),
-                    'Pedestrian': np.array([0.84422524,0.66068622,1.76255119]),
+                    'Pedestrian': np.array([1.758,1.2790863,1.2844228]), #np.array([0.84422524,0.66068622,1.76255119]),
                     'Person_sitting': np.array([0.80057803,0.5983815,1.27450867]),
                     'Cyclist': np.array([1.76282397,0.59706367,1.73698127]),
                     'Tram': np.array([16.17150617,2.53246914,3.53079012]),
@@ -70,13 +70,13 @@ def get_box3d_corners_helper(centers, headings, sizes):
     """ TF layer. Input: (N,3), (N,), (N,3), Output: (N,8,3) """
     #print '-----', centers
     N = centers.get_shape()[0].value
-    l = tf.slice(sizes, [0,0], [-1,1]) # (N,1)
+    h = tf.slice(sizes, [0,0], [-1,1]) # (N,1)
     w = tf.slice(sizes, [0,1], [-1,1]) # (N,1)
-    h = tf.slice(sizes, [0,2], [-1,1]) # (N,1)
+    l = tf.slice(sizes, [0,2], [-1,1]) # (N,1)
     #print l,w,h
-    x_corners = tf.concat([l/2,l/2,-l/2,-l/2,l/2,l/2,-l/2,-l/2], axis=1) # (N,8)
+    x_corners = tf.concat([w/2,w/2,-w/2,-w/2,w/2,w/2,-w/2,-w/2], axis=1) # (N,8)
     y_corners = tf.concat([h/2,h/2,h/2,h/2,-h/2,-h/2,-h/2,-h/2], axis=1) # (N,8)
-    z_corners = tf.concat([w/2,-w/2,-w/2,w/2,w/2,-w/2,-w/2,w/2], axis=1) # (N,8)
+    z_corners = tf.concat([l/2,-l/2,-l/2,l/2,l/2,-l/2,-l/2,l/2], axis=1) # (N,8)
     corners = tf.concat([tf.expand_dims(x_corners,1), tf.expand_dims(y_corners,1), tf.expand_dims(z_corners,1)], axis=1) # (N,3,8)
     #print x_corners, y_corners, z_corners
     c = tf.cos(headings)

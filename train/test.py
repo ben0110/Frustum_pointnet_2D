@@ -20,7 +20,8 @@ sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'models'))
 from model_util import NUM_HEADING_BIN, NUM_SIZE_CLUSTER
 import provider
-from train_util import get_batch
+from train_util import get_batch,get_batch_test
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=int, default=0, help='GPU to use [default: GPU 0]')
@@ -45,9 +46,8 @@ NUM_CLASSES = 2
 NUM_CHANNEL = 4
 
 # Load Frustum Datasets.
-TEST_DATASET = provider.FrustumDataset(npoints=NUM_POINT, split='val',
-    rotate_to_center=True, overwritten_data_path=FLAGS.data_path,
-    from_rgb_detection=FLAGS.from_rgb_detection, one_hot=True)
+TEST_DATASET = provider.FrustumDataset(npoints=NUM_POINT, split='val',res="224",
+    rotate_to_center=False, one_hot=True)
 
 def get_session_and_ops(batch_size, num_point):
     ''' Define model graph, load model parameters,
@@ -211,7 +211,7 @@ def test_from_rgb_detection(output_filename, result_dir=None):
     print(len(TEST_DATASET))
     batch_size = BATCH_SIZE
     num_batches = int((len(TEST_DATASET)+batch_size-1)/batch_size)
-    
+
     batch_data_to_feed = np.zeros((batch_size, NUM_POINT, NUM_CHANNEL))
     batch_one_hot_to_feed = np.zeros((batch_size, 3))
     sess, ops = get_session_and_ops(batch_size=batch_size, num_point=NUM_POINT)
@@ -292,27 +292,39 @@ def test(output_filename, result_dir=None):
 
     test_idxs = np.arange(0, len(TEST_DATASET))
     batch_size = BATCH_SIZE
-    num_batches = len(TEST_DATASET)/batch_size
+    #num_batches = len(TEST_DATASET)/batch_size
+    num_batches = len(TEST_DATASET.idx_batch)
 
     sess, ops = get_session_and_ops(batch_size=batch_size, num_point=NUM_POINT)
     correct_cnt = 0
+    time_stamp = []
+    print(TEST_DATASET.id_list)
+    print(TEST_DATASET.idx_batch)
     for batch_idx in range(num_batches):
+        indices=np.argwhere(np.asarray(TEST_DATASET.id_list)==TEST_DATASET.idx_batch[batch_idx])
+        print(indices[:,0])
+        start_idx = np.min(indices[:,0])
+        end_idx = np.max(indices[:,0])
+        batch_size= 1
         print('batch idx: %d' % (batch_idx))
-        start_idx = batch_idx * batch_size
-        end_idx = (batch_idx+1) * batch_size
-
+        #start_idx = batch_idx * batch_size
+        #end_idx = (batch_idx+1) * batch_size
+        print("start_idx: ", start_idx)
+        print("end_idx:",  end_idx)
         batch_data, batch_label, batch_center, \
         batch_hclass, batch_hres, batch_sclass, batch_sres, \
         batch_rot_angle, batch_one_hot_vec = \
-            get_batch(TEST_DATASET, test_idxs, start_idx, end_idx,
+            get_batch_test(TEST_DATASET, test_idxs, start_idx, end_idx,
                 NUM_POINT, NUM_CHANNEL)
-
+        start_time = time.time()
 	batch_output, batch_center_pred, \
         batch_hclass_pred, batch_hres_pred, \
         batch_sclass_pred, batch_sres_pred, batch_scores = \
             inference(sess, ops, batch_data,
                 batch_one_hot_vec, batch_size=batch_size)
-
+        end_time = time.time()
+        print("inference time: ", end_time - start_time)
+        time_stamp.append(end_time - start_time)
         correct_cnt += np.sum(batch_output==batch_label)
 	
         for i in range(batch_output.shape[0]):
@@ -329,25 +341,13 @@ def test(output_filename, result_dir=None):
 
     print("Segmentation accuracy: %f" % \
         (correct_cnt / float(batch_size*num_batches*NUM_POINT)))
-
-    if FLAGS.dump_result:
-        with open(output_filename, 'wp') as fp:
-            pickle.dump(ps_list, fp)
-            pickle.dump(seg_list, fp)
-            pickle.dump(segp_list, fp)
-            pickle.dump(center_list, fp)
-            pickle.dump(heading_cls_list, fp)
-            pickle.dump(heading_res_list, fp)
-            pickle.dump(size_cls_list, fp)
-            pickle.dump(size_res_list, fp)
-            pickle.dump(rot_angle_list, fp)
-            pickle.dump(score_list, fp)
+    print("average inference time:",np.sum(time_stamp)/num_batches )
 
     # Write detection results for KITTI evaluation
-    write_detection_results(result_dir, TEST_DATASET.id_list,
+    """write_detection_results(result_dir, TEST_DATASET.id_list,
         TEST_DATASET.type_list, TEST_DATASET.box2d_list, center_list,
         heading_cls_list, heading_res_list,
-        size_cls_list, size_res_list, rot_angle_list, score_list)
+        size_cls_list, size_res_list, rot_angle_list, score_list)"""
 
 
 if __name__=='__main__':
