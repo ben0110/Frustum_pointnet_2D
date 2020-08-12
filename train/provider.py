@@ -297,7 +297,7 @@ class FrustumDataset(object):
                 self.frustum_angle_list = pickle.load(fp) 
             """
 
-            self.id_list = self.dataset_kitti.sample_id_list
+            self.id_list = self.dataset_kitti.sample_id_list[:32]
             self.idx_batch = self.id_list
             batch_list = []
             self.frustum_angle_list=[]
@@ -401,7 +401,7 @@ class FrustumDataset(object):
         elif(split=='val' or split=='test'):
 
             self.indice_box = []
-            self.dataset_kitti.sample_id_list = self.dataset_kitti.sample_id_list
+            self.dataset_kitti.sample_id_list = self.dataset_kitti.sample_id_list[:32]
             self.id_list = self.dataset_kitti.sample_id_list
             self.idx_batch = self.id_list
             batch_list = []
