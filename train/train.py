@@ -377,7 +377,7 @@ def eval_one_epoch(sess, ops, test_dataset, res,split):
                       ops['end_points']['size_residuals'],
                       ops['end_points']['iou2ds'], ops['end_points']['iou3ds'], ops['end_points']['box_pred_nbr']],
                      feed_dict=feed_dict)
-        test_writer.add_summary(summary, step)
+        #test_writer.add_summary(summary, step)
 
         preds_val = np.argmax(logits_val, 2)
         correct = np.sum(preds_val == batch_label)
