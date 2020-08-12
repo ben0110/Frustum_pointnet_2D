@@ -69,6 +69,9 @@ BN_DECAY_DECAY_RATE = 0.5
 BN_DECAY_DECAY_STEP = float(DECAY_STEP)
 BN_DECAY_CLIP = 0.99
 
+OUTPUT_FILE = os.path.join(LOG_DIR,
+                           'results/')
+
 # Load Frustum Datasets. Use default data paths.
 TRAIN_DATASET = provider.FrustumDataset(npoints=NUM_POINT, database='KITTI', split='train', res=0,
                                         rotate_to_center=True, random_flip=False, random_shift=True, one_hot=True)
@@ -467,10 +470,10 @@ def eval_one_epoch(sess, ops, test_dataset, res,split):
     accuracy_5, recall_5 = eval_per_frame(test_dataset.id_list, test_dataset.indice_box, ps_list, seg_list, segp_list, GT_box_list,
                    pred_box_list, IOU3d, score_list)
 
-    write_detection_results_test(res,split, test_dataset.id_list,
+    write_detection_results_test("", test_dataset.id_list,
                                  center_list,
                                  heading_cls_list, heading_res_list,
-                                 size_cls_list, size_res_list, rot_angle_list, segp_list,score_list)
+                                 size_cls_list, size_res_list, rot_angle_list, segp_list,score_list,res,split)
     log_string(res + " " + split + ' accuracy(0.5): %f' % accuracy_5)
     log_string(res + " " + split + ' reca(0.5): %f' % accuracy_5)
 
@@ -790,12 +793,12 @@ def precision_recall(id_list_frame,corners_frame,corners_GT_frame,scores,iou_fra
 
 
 
-def write_detection_results_test(result_dir,split, id_list, center_list, \
+def write_detection_results_test(result_dir, id_list, center_list, \
                                  heading_cls_list, heading_res_list, \
                                  size_cls_list, size_res_list, \
-                                 rot_angle_list, segp_list,score_list):
+                                 rot_angle_list, segp_list,score_list,split,res):
     ''' Write frustum pointnets results to KITTI format label files. '''
-    result_dir = OUTPUT_FILE+split+"/"+result_dir+"/"
+    result_dir = OUTPUT_FILE+split+"/"+res+"/"
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
     if result_dir is None: return
