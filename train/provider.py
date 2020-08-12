@@ -142,7 +142,7 @@ def extract_pc_in_box2d(pc,pixels, box2d):
     #box2D_mask[box2d_roi_inds]=1
     return pc[box2d_roi_inds], box2d_roi_inds
 def get_pixels(index,split):
-    if split=="val" or split="train":
+    if split=="val" or split=="train":
         pixel_dir = "/root/frustum-pointnets_RSC/dataset/KITTI/object/training/pc_to_pixels/"
     else:
         pixel_dir = "/root/frustum-pointnets_RSC/dataset/KITTI_2/object/testing/pc_to_pixels/"
