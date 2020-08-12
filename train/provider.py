@@ -481,7 +481,7 @@ class FrustumDataset(object):
                         box_corners = gt_corners[k]
                         fg_pt_flag = kitti_utils.in_hull(frus_pc[:, 0:3], box_corners)
                         cls_label[fg_pt_flag] = k + 1
-
+                    print("gt in frus",np.count_nonzero(cls_label > 0))
                     if (np.count_nonzero(cls_label > 0) < 20):
                         center = np.ones((3))*(-10.0)
                         heading = 0.0

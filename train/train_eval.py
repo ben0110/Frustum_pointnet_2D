@@ -480,7 +480,7 @@ def eval_one_epoch(sess, ops, test_dataset,res,split):
     write_detection_results_test(res,split, test_dataset.id_list,
                                  center_list,
                                  heading_cls_list, heading_res_list,
-                                 size_cls_list, size_res_list, rot_angle_list, segp_list)
+                                 size_cls_list, size_res_list, rot_angle_list, segp_list,score_list)
 def compare_box_iou(res,split,id_list,indice_box,size_residual_GT,size_class_GT,heading_res_GT,heading_class_GT,center_GT,
                     score_list,size_res_list,size_cls_list,heading_res_list, heading_cls_list,center_list,segp_list,seg_list,):
     file1 = open(OUTPUT_FILE+"/"+split+"_"+res+ ".txt" , "w")
@@ -798,7 +798,7 @@ def precision_recall(id_list_frame,corners_frame,corners_GT_frame,scores,iou_fra
 def write_detection_results_test(result_dir,split, id_list, center_list, \
                                  heading_cls_list, heading_res_list, \
                                  size_cls_list, size_res_list, \
-                                 rot_angle_list, segp_list):
+                                 rot_angle_list, segp_list,score_list):
     ''' Write frustum pointnets results to KITTI format label files. '''
     result_dir = OUTPUT_FILE+split+"/"+result_dir+"/"
     if not os.path.exists(result_dir):
@@ -815,9 +815,9 @@ def write_detection_results_test(result_dir,split, id_list, center_list, \
         output_str += "0.0 0.0 0.0 0.0 "
         h, w, l, tx, ty, tz, ry = provider.from_prediction_to_label_format(center_list[i],
                                                                            heading_cls_list[i], heading_res_list[i],
-                                                                           size_cls_list[i], size_res_list[i], 0.0)
+                                                                           size_cls_list[i], size_res_list[i], rot_angle_list[i])
         score = 0.0
-        output_str += "%f %f %f %f %f %f %f %f" % (h, w, l, tx, ty, tz, ry, score)
+        output_str += "%f %f %f %f %f %f %f %f" % (h, w, l, tx, ty, tz, ry, score_list[i])
         if idx not in results: results[idx] = []
         results[idx].append(output_str)
 
