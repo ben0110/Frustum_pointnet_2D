@@ -306,7 +306,12 @@ def train_one_epoch(sess, ops, train_writer):
             iou3ds_sum = 0
             iou3d_correct_cnt = 0
 
-
+def softmax(x):
+    ''' Numpy function for softmax'''
+    shape = x.shape
+    probs = np.exp(x - np.max(x, axis=len(shape) - 1, keepdims=True))
+    probs /= np.sum(probs, axis=len(shape) - 1, keepdims=True)
+    return probs
 def eval_one_epoch(sess, ops, test_dataset, res,split):
     ''' Simple evaluation for one epoch on the frustum dataset.
     ops is dict mapping from string to tf ops """
