@@ -375,7 +375,6 @@ def eval_one_epoch(sess, ops, test_dataset, res,split):
                       ops['end_points']['center'], ops['end_points']['heading_scores'],
                       ops['end_points']['heading_residuals'], ops['end_points']['size_scores'],
                       ops['end_points']['size_residuals'],
-                      ops['end_points']['iou2ds'],
                       ops['end_points']['iou2ds'], ops['end_points']['iou3ds'], ops['end_points']['box_pred_nbr']],
                      feed_dict=feed_dict)
         test_writer.add_summary(summary, step)
@@ -469,6 +468,8 @@ def eval_one_epoch(sess, ops, test_dataset, res,split):
                                  size_cls_list, size_res_list, rot_angle_list, segp_list,score_list)
     log_string(res + " " + split + ' accuracy(0.5): %f' % accuracy_5)
     log_string(res + " " + split + ' reca(0.5): %f' % accuracy_5)
+
+
 def compare_box_iou(res,split,id_list,indice_box,size_residual_GT,size_class_GT,heading_res_GT,heading_class_GT,center_GT,
                     score_list,size_res_list,size_cls_list,heading_res_list, heading_cls_list,center_list,segp_list,seg_list,):
     file1 = open(OUTPUT_FILE+"/"+split+"_"+res+ ".txt" , "w")
